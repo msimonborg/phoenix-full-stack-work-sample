@@ -196,7 +196,7 @@ defmodule Fly.Client do
               memoryMb
             }
           }
-          releases(last: 5) {
+          releases(first: 5) {
             totalCount
             nodes {
               version
