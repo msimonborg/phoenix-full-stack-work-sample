@@ -100,7 +100,7 @@ defmodule FlyWeb.AppLive.Show do
   defp assign_vm_counts(socket) do
     vm_counts =
       Enum.reduce(socket.assigns.app["taskGroupCounts"], %{}, fn group_count, acc ->
-        Map.put(acc, group_count["name"], group_count["count"])
+        Map.put(acc, group_count["name"], to_string(group_count["count"]))
       end)
 
     assign(socket, :vm_counts, vm_counts)
@@ -127,7 +127,7 @@ defmodule FlyWeb.AppLive.Show do
 
   def handle_event("set_vm_count", %{"vm_count" => params}, socket) do
     %{"group" => group, "count" => count} = params
-    {:noreply, update(socket, :vm_counts, &Map.replace(&1, group, String.to_integer(count)))}
+    {:noreply, update(socket, :vm_counts, &Map.replace(&1, group, count))}
   end
 
   def handle_event("set_vm_size", %{"vm_size" => params}, socket) do
@@ -138,7 +138,7 @@ defmodule FlyWeb.AppLive.Show do
   def handle_event("scale_vms", %{"vms" => params}, %{assigns: assigns} = socket) do
     group = params["group"]
     app_id = assigns.app["id"]
-    count = assigns.vm_counts[group]
+    count = assigns.vm_counts[group] |> normalize_count()
     vm_size = assigns.vm_sizes[group]
     config = assigns.config
 
@@ -160,6 +160,19 @@ defmodule FlyWeb.AppLive.Show do
     else
       {:noreply, socket}
     end
+  end
+
+  defp normalize_count(nil), do: 0
+  defp normalize_count(""), do: 0
+  defp normalize_count(count) when is_integer(count) and count >= 0, do: count
+
+  defp normalize_count(count) when is_integer(count) and count < 0 do
+    Logger.warn("VM count cannot be below 0. Received input: #{inspect(count)}")
+    0
+  end
+
+  defp normalize_count(count) when is_binary(count) do
+    count |> String.to_integer() |> normalize_count()
   end
 
   defp restart_allocation(app_id, alloc_id, config) do
