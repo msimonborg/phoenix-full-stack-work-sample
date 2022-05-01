@@ -61,11 +61,20 @@ defmodule FlyWeb.Components.Alert do
   end
 
   @doc """
-  Return the color to used for the alert type.
+  Return the color to use for the alert type.
   """
   @spec alert_color_for(:info | :success | :warn | :error) :: String.t()
-  def alert_color_for(:info), do: "blue"
-  def alert_color_for(:success), do: "green"
-  def alert_color_for(:warn), do: "yellow"
-  def alert_color_for(:error), do: "red"
+  def alert_color_for(:info), do: "white"
+  def alert_color_for(:success), do: "green-600"
+  def alert_color_for(:warn), do: "yellow-600"
+  def alert_color_for(:error), do: "red-600"
+
+  @doc """
+  Return the text color to use for the alert type.
+  """
+  @spec alert_text_color_for(:info | :success | :warn | :error) :: String.t()
+  def alert_text_color_for(:info), do: "gray-900"
+  def alert_text_color_for(:success), do: "white"
+  def alert_text_color_for(:warn), do: "gray-900"
+  def alert_text_color_for(:error), do: "white"
 end

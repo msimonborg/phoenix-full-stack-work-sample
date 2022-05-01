@@ -13,7 +13,7 @@ import "../css/app.css"
 //     import socket from "./socket"
 //
 import "phoenix_html"
-import "alpinejs"
+import Alpine from 'alpinejs'
 import { Socket } from "phoenix"
 import topbar from "topbar"
 import { LiveSocket } from "phoenix_live_view"
@@ -47,3 +47,7 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+window.Alpine = Alpine
+
+Alpine.start()

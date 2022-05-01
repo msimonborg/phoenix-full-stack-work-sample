@@ -50,7 +50,8 @@ defmodule Fly.MixProject do
       # GraphQL client library
       {:neuron, "~> 5.0.0"},
       {:recase, "~> 0.7.0"},
-      {:httpoison, "~> 1.8.0"}
+      {:httpoison, "~> 1.8.0"},
+      {:timex, "~> 3.7"}
     ]
   end
 

@@ -1,6 +1,8 @@
 defmodule FlyWeb.AppLive.Index do
   use FlyWeb, :live_view
 
+  import FlyWeb.AppLive.Helpers
+
   require Logger
 
   alias Fly.Client
@@ -10,7 +12,7 @@ defmodule FlyWeb.AppLive.Index do
   def mount(_params, session, socket) do
     socket =
       assign(socket,
-        config: client_config(session),
+        config: config(session),
         state: :loading,
         apps: [],
         authenticated: true
@@ -22,10 +24,6 @@ defmodule FlyWeb.AppLive.Index do
     else
       {:ok, socket}
     end
-  end
-
-  defp client_config(session) do
-    Fly.Client.config(access_token: session["auth_token"] || System.get_env("FLYIO_ACCESS_TOKEN"))
   end
 
   defp fetch_apps(socket) do
@@ -40,22 +38,6 @@ defmodule FlyWeb.AppLive.Index do
         Logger.error("Failed to load apps. Reason: #{inspect(reason)}")
 
         put_flash(socket, :error, reason)
-    end
-  end
-
-  def status_bg_color(app) do
-    case app["status"] do
-      "running" -> "bg-green-100"
-      "dead" -> "bg-red-100"
-      _ -> "bg-yellow-100"
-    end
-  end
-
-  def status_text_color(app) do
-    case app["status"] do
-      "running" -> "text-green-800"
-      "dead" -> "text-red-800"
-      _ -> "text-yellow-800"
     end
   end
 end

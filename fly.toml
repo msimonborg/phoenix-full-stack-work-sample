@@ -1,6 +1,6 @@
-# fly.toml file generated for flyio-ui-ex on 2021-08-26T16:42:20-05:00
+# fly.toml file generated for falling-cherry-5505 on 2022-04-30T23:59:57-04:00
 
-app = "flyio-ui-ex"
+app = "falling-cherry-5505"
 
 kill_signal = "SIGTERM"
 kill_timeout = 5

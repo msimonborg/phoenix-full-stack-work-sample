@@ -180,12 +180,21 @@ defmodule Fly.Client do
         app(name: $name) {
           id
           name
+          deployed
+          status
+          hostname
+          version
+          appUrl
           organization {
             id
             slug
           }
           deployed
           status
+          regions {
+            code
+            name
+          }
           processGroups {
             name
             regions
@@ -196,9 +205,14 @@ defmodule Fly.Client do
               memoryMb
             }
           }
+          taskGroupCounts {
+            name
+            count
+          }
           releases(first: 5) {
             totalCount
             nodes {
+              id
               version
               stable
               description
@@ -208,6 +222,42 @@ defmodule Fly.Client do
                 name
                 avatarUrl
               }
+            }
+          }
+          deploymentStatus {
+            id
+            status
+            version
+            description
+            placedCount
+            promoted
+            desiredCount
+            healthyCount
+            unhealthyCount
+          }
+          allocations(showCompleted: false) {
+            id
+            idShort
+            version
+            latestVersion
+            status
+            desiredStatus
+            totalCheckCount
+            passingCheckCount
+            warningCheckCount
+            criticalCheckCount
+            createdAt
+            updatedAt
+            canary
+            region
+            restarts
+            healthy
+            privateIP
+            taskName
+            checks {
+              status
+              output
+              name
             }
           }
         }
@@ -227,6 +277,183 @@ defmodule Fly.Client do
         Logger.error("Unexpected result from fetch_app. Response: #{inspect(other)}")
 
         {:error, "Failed to fetch app"}
+    end
+  end
+
+  def restart_allocation(app_id, allocation_id, config) do
+    config = Keyword.put(config, :connection_opts, recv_timeout: 20_000)
+
+    """
+      mutation RestartAllocation($allocId: ID!, $appId: ID!) {
+        restartAllocation(input: {
+          appId: $appId
+          allocId: $allocId
+        }) {
+          allocation {
+            id
+            desiredStatus
+            status
+            restarts
+          }
+        }
+      }
+    """
+    |> perform_query(%{allocId: allocation_id, appId: app_id}, config, :restart_allocation)
+    |> handle_response()
+    |> case do
+      {:ok, %{"restartAllocation" => restart_allocation}} ->
+        Logger.info("restart successful: #{inspect(restart_allocation)}")
+        {:ok, restart_allocation}
+
+      {:error, _reason} = error ->
+        error
+
+      other ->
+        Logger.error("Unexpected result from restart_allocation. Response: #{inspect(other)}")
+
+        {:error, "Failed to restart instance"}
+    end
+  end
+
+  def pause_app(app_id, config) do
+    config = Keyword.put(config, :connection_opts, recv_timeout: 20_000)
+
+    """
+      mutation PauseApp($appId: ID!) {
+        pauseApp(input: {
+          appId: $appId
+        }) {
+          app {
+            id
+            status
+          }
+        }
+      }
+    """
+    |> perform_query(%{appId: app_id}, config, :pause_app)
+    |> handle_response()
+    |> case do
+      {:ok, %{"pauseApp" => pause_app}} ->
+        Logger.info("paused app successfully: #{inspect(pause_app)}")
+        {:ok, pause_app}
+
+      {:error, _reason} = error ->
+        error
+
+      other ->
+        Logger.error("Unexpected result from pause_app. Response: #{inspect(other)}")
+
+        {:error, "Failed to pause app"}
+    end
+  end
+
+  def resume_app(app_id, config) do
+    config = Keyword.put(config, :connection_opts, recv_timeout: 20_000)
+
+    """
+      mutation ResumeApp($appId: ID!) {
+        resumeApp(input: {
+          appId: $appId
+      	}) {
+          app {
+            id
+            status
+          }
+        }
+      }
+    """
+    |> perform_query(%{appId: app_id}, config, :resume_app)
+    |> handle_response()
+    |> case do
+      {:ok, %{"resumeApp" => resume_app}} ->
+        Logger.info("resumed app successfully: #{inspect(resume_app)}")
+        {:ok, resume_app}
+
+      {:error, _reason} = error ->
+        error
+
+      other ->
+        Logger.error("Unexpected result from resume_app. Response: #{inspect(other)}")
+
+        {:error, "Failed to resume app"}
+    end
+  end
+
+  def set_vm_count(app_id, group, count, config) do
+    config = Keyword.put(config, :connection_opts, recv_timeout: 20_000)
+
+    """
+      mutation SetVMCount($appId: ID!, $group: String, $count: Int) {
+        setVmCount(input: {
+          appId: $appId
+          groupCounts: [
+            {
+              group: $group,
+              count: $count
+            }
+          ]
+        }) {
+          app {
+            id
+          }
+          taskGroupCounts {
+            name
+            count
+          }
+        }
+      }
+    """
+    |> perform_query(%{appId: app_id, group: group, count: count}, config, :set_vm_count)
+    |> handle_response()
+    |> case do
+      {:ok, %{"setVmCount" => set_vm_count}} ->
+        Logger.info("set VM count successful: #{inspect(set_vm_count)}")
+        {:ok, set_vm_count}
+
+      {:error, _reason} = error ->
+        error
+
+      other ->
+        Logger.error("Unexpected result from set_vm_count. Response: #{inspect(other)}")
+
+        {:error, "Failed to set VM count"}
+    end
+  end
+
+  def set_vm_size(app_id, size, config) do
+    config = Keyword.put(config, :connection_opts, recv_timeout: 20_000)
+
+    """
+      mutation SetVMSize($appId: ID!, $sizeName: String!) {
+        setVmSize(input: {
+          appId: $appId,
+          sizeName: $sizeName
+        }) {
+          app {
+            id
+          }
+          vmSize {
+            name
+            memoryMb
+            cpuCores
+          }
+        }
+      }
+    """
+    |> perform_query(%{appId: app_id, sizeName: size}, config, :set_vm_size)
+    |> handle_response()
+    |> case do
+      {:ok, %{"setVmSize" => set_vm_size}} ->
+        Logger.info("set VM size successful: #{inspect(set_vm_size)}")
+        {:ok, set_vm_size}
+
+      {:error, _reason} = error ->
+        error
+
+      other ->
+        Logger.error("Unexpected result from set_vm_size. Response: #{inspect(other)}")
+
+        {:error, "Failed to set VM size"}
     end
   end
 

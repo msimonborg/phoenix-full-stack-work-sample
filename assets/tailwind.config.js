@@ -17,10 +17,20 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      animation: {
+        'reverse-spin': 'reverse-spin 2s linear infinite'
+      },
+      keyframes: {
+        'reverse-spin': {
+          from: {
+            transform: 'rotate(360deg)'
+          }
+        }
+      },
       backgroundSize: {
-       'full-auto': '100% auto',
-       'auto-full': 'auto 100%',
-       '150': '150%',
+        'full-auto': '100% auto',
+        'auto-full': 'auto 100%',
+        '150': '150%',
       },
       boxShadow: {
         'bl': '-1px 0 var(--outline)',
@@ -33,6 +43,7 @@ module.exports = {
         gray: colors.blueGray,
         emerald: colors.emerald,
         fuchsia: colors.fuchsia,
+        blue: colors.blue,
         navy: '#24185B',
         orange: colors.orange,
         purple: {
@@ -52,11 +63,11 @@ module.exports = {
       },
       container: {
         screens: {
-           sm: '640px',
-           md: '768px',
-           lg: '1024px',
-           xl: '1280px',
-           '2xl': '1400px',
+          sm: '640px',
+          md: '768px',
+          lg: '1024px',
+          xl: '1280px',
+          '2xl': '1400px',
         }
       },
       filter: {
@@ -116,6 +127,7 @@ module.exports = {
         ],
       },
       fontSize: {
+        '2xs': ['0.5rem', { lineHeight: '1rem' }],
         '4.5xl': ['2.5rem', { lineHeight: '1.25' }],
         '5.5xl': ['3.35rem', { lineHeight: '1.25' }],
       },
@@ -159,7 +171,7 @@ module.exports = {
     require('@tailwindcss/line-clamp'),
     require('tailwindcss-textshadow'),
     require('tailwind-underline-utils'),
-    plugin(function({ addComponents, theme }) {
+    plugin(function ({ addComponents, theme }) {
       const cards = {
         '.card': {
           'border-radius': theme('borderRadius.default'),
@@ -174,7 +186,7 @@ module.exports = {
         }
       }
 
-      addComponents([ cards, wordSpacing ])
+      addComponents([cards, wordSpacing])
     }),
   ],
 }

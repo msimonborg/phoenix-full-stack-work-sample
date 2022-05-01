@@ -10,20 +10,22 @@ defmodule FlyWeb.Components.FlashAlert do
   end
 
   defp render_alert(%{flash_msg: nil} = assigns), do: ~H""
+
   defp render_alert(%{flash_msg: _, type: type} = assigns) do
     assigns =
       assigns
       |> assign(:type_string, Atom.to_string(type))
       |> assign(:alert_color, Alert.alert_color_for(type))
+      |> assign(:alert_text_color, Alert.alert_text_color_for(type))
 
     ~H"""
-    <div class={"absolute bottom-6 left-1/2 transform -translate-x-1/2 max-w-4xl mx-auto rounded-xl bg-#{@alert_color}-600 px-5 py-4 text-sm font-medium text-white shadow-lg"} role="alert">
+    <div class={"absolute bottom-6 left-1/2 transform -translate-x-1/2 max-w-4xl mx-auto rounded-xl bg-#{@alert_color} px-5 py-4 text-sm font-medium text-white shadow-lg"} role="alert">
       <div class="flex">
         <div class="flex-shrink-0">
           <Alert.alert_icon type={@type} />
         </div>
         <div class="ml-3">
-          <p class="text-white">
+          <p class={"text-#{@alert_text_color}"}>
             <%= live_flash(@flash, @type) %>
           </p>
         </div>
