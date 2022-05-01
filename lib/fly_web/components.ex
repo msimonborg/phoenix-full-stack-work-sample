@@ -45,7 +45,7 @@ defmodule FlyWeb.Components do
       |> assign_new(:loading, fn -> false end)
 
     ~H"""
-    <span class={"#{@color} #{@overlay && "overlay"} #{@loading && "loading"}"}>
+    <span class={"loader #{@color} #{@overlay && "overlay"} #{@loading && "loading"}"}>
       <span class="dots" style={"--dot-size: #{@size}"}>
           <span></span>
           <span></span>
@@ -240,33 +240,33 @@ defmodule FlyWeb.Components do
   end
 
   @doc """
-  Render a circle graphic for showing that a step in a process is in not done, the current step or complete.
+    Render a circle graphic for showing that a step in a process is in not done, the current step or complete.
 
-  ## Attributes
+    ## Attributes
 
-  - `:title` - the title
-  - `:subtitle` - the subtitle
-  - `:position` - the position for the circle step in the process. Values are `:first`, `:middle`, `:last`.
-  - `:check_state` - The state of the circle step. It is either `:complete`, `:current`, or `:future`.
+    - `:title` - the title
+    - `:subtitle` - the subtitle
+    - `:position` - the position for the circle step in the process. Values are `:first`, `:middle`, `:last`.
+    - `:check_state` - The state of the circle step. It is either `:complete`, `:current`, or `:future`.
 
-  ## Example
+    ## Example
 
-  ```html
-  <ol role="list" class="overflow-hidden">
-    <.check_step_vertical
-      title="Preparing"
-      subtitle="Preparing to deploy."
-      position={:first}
-      check_state={:complete} />
+    ```html
+    <ol role="list" class="overflow-hidden">
+      <.check_step_vertical
+        title="Preparing"
+        subtitle="Preparing to deploy."
+        position={:first}
+        check_state={:complete} />
 
-    <.check_step_vertical
-      title="Deploying"
-      subtitle="App being deployed!"
-      position={:middle}
-      check_state={:current} />
-  </ol>
-  ```
-"""
+      <.check_step_vertical
+        title="Deploying"
+        subtitle="App being deployed!"
+        position={:middle}
+        check_state={:current} />
+    </ol>
+    ```
+  """
   defdelegate check_step_vertical(assigns),
     to: FlyWeb.Components.CheckStepVertical,
     as: :render
@@ -301,6 +301,7 @@ defmodule FlyWeb.Components do
       <.help text="Oh no!" id="help" />
   """
   def help(%{text: nil} = assigns), do: ~H""
+
   def help(%{text: _text} = assigns) do
     ~H"""
     <div class="mt-2 text-sm text-gray-500" {assigns_to_attributes(assigns, [:text])}><%= @text %></div>

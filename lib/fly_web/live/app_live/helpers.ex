@@ -19,7 +19,7 @@ defmodule FlyWeb.AppLive.Helpers do
     "#{h}h #{m}m #{s}s"
   end
 
-  def format_uptime(deploy_time) do
+  def format_uptime(deploy_time) when is_binary(deploy_time) do
     deploy_time
     |> NaiveDateTime.from_iso8601!()
     |> format_uptime()
@@ -48,9 +48,8 @@ defmodule FlyWeb.AppLive.Helpers do
   end
 
   def regions(app) do
-    Enum.map(app["regions"], fn region ->
-      region["code"]
-    end)
+    app["regions"]
+    |> Enum.map(& &1["code"])
     |> Enum.join(", ")
   end
 

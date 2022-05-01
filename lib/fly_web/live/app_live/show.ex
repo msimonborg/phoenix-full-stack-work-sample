@@ -192,23 +192,19 @@ defmodule FlyWeb.AppLive.Show do
   end
 
   def handle_info(:refresh, %{assigns: assigns} = socket) do
-    task = Task.async(fn -> {:app, Client.fetch_app(assigns.app_name, assigns.config)} end)
-    {:noreply, assign(socket, refresh_task: task, refresh: true)}
+    Task.async(fn -> {:app, Client.fetch_app(assigns.app_name, assigns.config)} end)
+    {:noreply, assign(socket, refresh: true)}
   end
 
   def handle_info({ref, {:app, app}}, socket) when is_reference(ref) do
-    if ref == socket.assigns.refresh_task.ref do
-      Process.demonitor(ref, [:flush])
-      schedule_refresh()
+    Process.demonitor(ref, [:flush])
+    schedule_refresh()
 
-      {:noreply,
-       socket
-       |> assign_app(app)
-       |> assign(:refresh_task, nil)
-       |> assign(:refresh, false)}
-    else
-      {:noreply, socket}
-    end
+    {:noreply,
+     socket
+     |> assign_app(app)
+     |> assign(:refresh_task, nil)
+     |> assign(:refresh, false)}
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
