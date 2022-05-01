@@ -8,8 +8,9 @@ finished deployment) and a table listing the running instances, with full parity
 data refreshes every 5 seconds so you can track live changes and deployment progress.
 
 I was enjoying the project and this was my first time working with a GraphQL API so I challenged myself to learn how
-to do more than a basic query. As a new user of Fly.io there were a few features I thought of that I could implment which would
-be useful for developers managing their deployments. I spent an additional four to six hours implementing these features:
+to do more than a basic query. As a new user of Fly.io there were a few features I thought of that I could implement which would
+be useful for developers managing their deployments. I spent an additional four to six hours learning the GraphQL API and 
+implementing these features:
 
   * Scale VM size and count
   * Restart individual instances
