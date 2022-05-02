@@ -39,7 +39,7 @@
               </p>
               <div class="inline-flex">
                 <span class="flex h-3 w-3">
-                  <span class={"#{if @refresh, do: "animate-ping"} relative inline-flex rounded-full h-2 w-2 bg-orange-500"}></span>
+                  <span class={"#{if @refreshing, do: "animate-ping"} relative inline-flex rounded-full h-2 w-2 bg-orange-500"}></span>
                 </span>
               </div>
             </h2>
@@ -86,8 +86,7 @@
                 <div class="mx-6 inline-flex">
                   <!-- Enabled: "bg-green-600", Not Enabled: "bg-gray-200" -->
                   <.form let={f} for={:pause_app} action="#" phx-submit="pause_app">
-                    <%= hidden_input(f, :app_id, value: @app["id"]) %>
-                    <%= hidden_input(f, :paused, value: !@paused) %>
+                    <%= hidden_input(f, :pause, value: !@paused) %>
                     <button
                       class={"#{if @paused, do: "bg-gray-200", else: "bg-green-600"} relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"}
                       type="submit"
@@ -360,7 +359,6 @@
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                       <.form let={f} for={:restart} action="#" phx-submit="restart_allocation">
-                                        <%= hidden_input(f, :app_id, value: @app["id"], id: "restart_app_#{alloc["id"]}") %>
                                         <%= hidden_input(f, :alloc_id, value: alloc["id"], id: "restart_alloc_#{alloc["id"]}") %>
                                         <button type="submit" data-confirm="Are you sure you want to restart this instance?" class="relative inline-flex items-center pl-4 pr-3 py-2 rounded-full border border-transparent bg-transparent text-sm font-medium text-red-500 hover:bg-red-200 hover:drop-shadow-lg focus:z-10 focus:outline-none focus:ring-1 focus:ring-red-100">
                                           <svg xmlns="http://www.w3.org/2000/svg" class={"#{if alloc["id"] in @restarting, do: "animate-reverse-spin"} h-5 w-5 mr-1"} viewBox="0 0 20 20" fill="currentColor">
@@ -385,7 +383,6 @@
         </section>
       </div>
     </main>
-  <% else %>
-    <FlyWeb.Components.loader loading={true} size="16px" />
   <% end %>
+  <Components.loader loading={@loading} overlay={@loading} size="16px" />
 </div>

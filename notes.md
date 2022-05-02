@@ -22,6 +22,8 @@ If I continued work on this I would want to add the following features to the `a
 
   * Add and remove regions
   * Set auto-scaling rules
+  * Set ENV secrets
+  * Telemetry monitoring
   * Destroy app
   * View logs (not sure how to do this but it would be fun to try!)
 
@@ -54,6 +56,26 @@ I'm sure there are plenty more improvements that are not presently coming to min
 Here are some ways I might measure the success of this feature:
 
   * Use it myself - as a Fly.io user with my own deployments to manage, this would be one of my most constant sources of feedback
+  * Is it simple and intuitive to use and do the features provide value?
+  * Full end to end testing
   * If I had access to metrics of the GraphQL API I would track the comparison of dashboard traffic to overall API traffic over time as
   an approximation of utilization.
   * I would consider adding a feature that enables a user to report issues and provide feedback
+
+  ## Possible bug in API
+
+  While testing my features I came across what appears to be a bug in the API. It's apparently possible to scale your VM count while
+  the app is in `"suspended"` status. The app will be running and responsive, reachable by HTTP request to its URL, but the status
+  will remain "suspended". You can further scale the VM count to whatever arbitrary value you want, although scaling VM size will not
+  work until the app is resumed.
+
+  Steps to reproduce:
+
+    * Suspend an app with the `pauseApp` mutation
+    * Wait for VMs to spin down
+    * Scale the VM count with the `setVmCount` mutation. Your desired number of VMs will spin back up and respond to requests,
+    but the app status remains `"suspended"`
+    * Setting the VM size with the `setVmSize` mutation will not work
+    * Resume the app with the `resumeApp` mutation
+    * Existing VMs will continue running and app status instantly changes to `"running"`
+    * Setting VM size now works as expected

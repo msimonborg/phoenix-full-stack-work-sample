@@ -6,7 +6,7 @@ defmodule FlyWeb.AppLive.Show do
   require Logger
 
   alias Fly.Client
-  alias FlyWeb.Components.HeaderBreadcrumbs
+  alias FlyWeb.{Components, Components.HeaderBreadcrumbs}
 
   @impl true
   def mount(%{"name" => name}, session, socket) do
@@ -15,12 +15,11 @@ defmodule FlyWeb.AppLive.Show do
     socket =
       assign(socket,
         config: config,
-        state: :loading,
+        loading: true,
         app: nil,
         app_name: name,
-        count: 0,
         authenticated: true,
-        refresh: false,
+        refreshing: false,
         restarting: []
       )
 
@@ -40,6 +39,7 @@ defmodule FlyWeb.AppLive.Show do
        socket
        |> assign_app(Task.await(app))
        |> paused?()
+       |> assign(:loading, false)
        |> assign_vm_sizes()
        |> assign_vm_counts()
        |> assign(:vm_options, Task.await(vm_options))}
@@ -78,11 +78,9 @@ defmodule FlyWeb.AppLive.Show do
     end)
   end
 
-  defp paused?(socket) do
-    case socket.assigns.app["status"] do
-      "running" -> assign(socket, :paused, false)
-      _ -> assign(socket, :paused, true)
-    end
+  defp paused?(%{assigns: assigns} = socket) do
+    paused = if assigns.app["status"] == "running", do: false, else: true
+    assign(socket, :paused, paused)
   end
 
   defp assign_vm_sizes(socket) do
@@ -107,12 +105,12 @@ defmodule FlyWeb.AppLive.Show do
   end
 
   @impl true
-  def handle_event("pause_app", %{"pause_app" => pause_app_params}, socket) do
-    %{"app_id" => app_id, "paused" => paused} = pause_app_params
-    config = socket.assigns.config
+  def handle_event("pause_app", %{"pause_app" => params}, %{assigns: assigns} = socket) do
+    %{config: config, app: app} = assigns
+    app_id = app["id"]
 
     socket =
-      case paused do
+      case params["pause"] do
         "true" ->
           Task.start(fn -> Client.pause_app(app_id, config) end)
           put_flash(socket, :warn, "Pausing application #{app_id}.")
@@ -136,11 +134,11 @@ defmodule FlyWeb.AppLive.Show do
   end
 
   def handle_event("scale_vms", %{"vms" => params}, %{assigns: assigns} = socket) do
+    %{app: app, vm_counts: vm_counts, vm_sizes: vm_sizes, config: config} = assigns
     group = params["group"]
-    app_id = assigns.app["id"]
-    count = assigns.vm_counts[group] |> normalize_count()
-    vm_size = assigns.vm_sizes[group]
-    config = assigns.config
+    app_id = app["id"]
+    vm_size = vm_sizes[group]
+    count = normalize_count(vm_counts[group])
 
     Task.start(fn ->
       Client.set_vm_count(app_id, group, count, config)
@@ -150,12 +148,12 @@ defmodule FlyWeb.AppLive.Show do
     {:noreply, put_flash(socket, :info, "Successfully scaled VMs")}
   end
 
-  def handle_event("restart_allocation", %{"restart" => restart_params}, socket) do
-    %{"app_id" => app_id, "alloc_id" => alloc_id} = restart_params
+  def handle_event("restart_allocation", %{"restart" => params}, %{assigns: assigns} = socket) do
+    %{app: app, restarting: restarting, config: config} = assigns
+    alloc_id = params["alloc_id"]
 
-    if alloc_id not in socket.assigns.restarting do
-      config = socket.assigns.config
-      Task.async(fn -> restart_allocation(app_id, alloc_id, config) end)
+    if alloc_id not in restarting do
+      Task.async(fn -> restart_allocation(app["id"], alloc_id, config) end)
       {:noreply, update(socket, :restarting, &[alloc_id | &1])}
     else
       {:noreply, socket}
@@ -193,7 +191,7 @@ defmodule FlyWeb.AppLive.Show do
 
   def handle_info(:refresh, %{assigns: assigns} = socket) do
     Task.async(fn -> {:app, Client.fetch_app(assigns.app_name, assigns.config)} end)
-    {:noreply, assign(socket, refresh: true)}
+    {:noreply, assign(socket, :refreshing, true)}
   end
 
   def handle_info({ref, {:app, app}}, socket) when is_reference(ref) do
@@ -203,8 +201,7 @@ defmodule FlyWeb.AppLive.Show do
     {:noreply,
      socket
      |> assign_app(app)
-     |> assign(:refresh_task, nil)
-     |> assign(:refresh, false)}
+     |> assign(:refreshing, false)}
   end
 
   def handle_info(_, socket), do: {:noreply, socket}

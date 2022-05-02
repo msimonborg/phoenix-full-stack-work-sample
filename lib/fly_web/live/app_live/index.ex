@@ -6,21 +6,24 @@ defmodule FlyWeb.AppLive.Index do
   require Logger
 
   alias Fly.Client
-  alias FlyWeb.Components.HeaderBreadcrumbs
+  alias FlyWeb.{Components, Components.HeaderBreadcrumbs}
 
   @impl true
   def mount(_params, session, socket) do
     socket =
       assign(socket,
         config: config(session),
-        state: :loading,
+        loading: true,
         apps: [],
         authenticated: true
       )
 
     # Only make the API call if the websocket is setup. Not on initial render.
     if connected?(socket) do
-      {:ok, fetch_apps(socket)}
+      {:ok,
+       socket
+       |> fetch_apps()
+       |> assign(:loading, false)}
     else
       {:ok, socket}
     end
