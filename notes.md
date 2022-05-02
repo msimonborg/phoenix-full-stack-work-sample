@@ -71,11 +71,11 @@ Here are some ways I might measure the success of this feature:
 
   Steps to reproduce:
 
-    * Suspend an app with the `pauseApp` mutation
-    * Wait for VMs to spin down
-    * Scale the VM count with the `setVmCount` mutation. Your desired number of VMs will spin back up and respond to requests,
-    but the app status remains `"suspended"`
-    * Setting the VM size with the `setVmSize` mutation will not work
-    * Resume the app with the `resumeApp` mutation
-    * Existing VMs will continue running and app status instantly changes to `"running"`
-    * Setting VM size now works as expected
+  * Suspend an app with the `pauseApp` mutation
+  * Wait for VMs to spin down
+  * Scale the VM count with the `setVmCount` mutation. Your desired number of VMs will spin back up and respond to requests,
+  but the app status remains `"suspended"`
+  * Setting the VM size with the `setVmSize` mutation will not work
+  * Resume the app with the `resumeApp` mutation
+  * Existing VMs will continue running and app status instantly changes to `"running"`
+  * Setting VM size now works as expected
