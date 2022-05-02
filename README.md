@@ -27,10 +27,10 @@ ed63d501 web    118     iad    run     running 1 total, 1 passing 0        2h38m
 3bf5f208 worker 118     iad    run     running                    0        2h39m ago 
 ```
 
-I implemented this feature and added a few extra for a UX experience that provides developers with more control over their deployments.
+I implemented this feature and added a few extra for a UX that provides developers with more control over their deployments.
 
 This app uses Phoenix LiveView and is deployed on Fly.io in the `ewr` region. If you have an account with Fly.io you can visit the app at
-[https://falling-cherry-5505.fly.dev/apps/carrier](https://falling-cherry-5505.fly.dev/apps/carrier). Run `flyctl auth token` on your
+[https://falling-cherry-5505.fly.dev](https://falling-cherry-5505.fly.dev). Run `flyctl auth token` on your
 command line and use the token to login. You can now view the status of your apps, pause/resume them, scale them in both VM size and
 count, and restart the running instances.
 
