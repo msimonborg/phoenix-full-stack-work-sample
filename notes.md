@@ -49,6 +49,7 @@ If I had more time to spend on this project I would make the following improveme
 * Refactor HTML renders into reusable components, particularly icons, tables, input elements, and buttons
 * Add a `Task.Supervisor` to the application tree and start the API call tasks under supervision
 * Improve error handling of API calls in the view
+* Use embedded schemas and changesets to validate user input
 * Improve vertical alignment of the release history panel
 * Make the page layout more friendly to mobile and small screen sizes
 * I had an issue wrapping all of the VM scaling management into a single LiveView form component, I believe because the inputs were
